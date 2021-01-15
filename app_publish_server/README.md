@@ -1,6 +1,6 @@
 # app_publish_server
 
-
+关闭eslint .eslintrc 注释掉里边内容
 
 ## QuickStart
 
