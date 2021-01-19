@@ -5,8 +5,10 @@ module.exports = app => {
   const Schema = mongoose.Schema;
   const UserSchema = new Schema({
     appName: { type: String, required: true },
-    appIcon: { type: String, required: true },
     appVersion: { type: String, required: true },
+    appIcon: { type: String, required: true },
+    platform: { type: String, required: true },
+    packageId: { type: String, required: true },
   });
-  return mongoose.model('File', UserSchema);
+  return mongoose.model('App', UserSchema);
 };
