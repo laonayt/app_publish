@@ -1,6 +1,7 @@
 # app_publish_server
 
-关闭eslint .eslintrc 注释掉里边内容
+1、关闭eslint .eslintrc 注释掉里边内容
+2、bcrypt 加密
 
 ## QuickStart
 

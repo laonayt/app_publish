@@ -10,6 +10,7 @@ module.exports = app => {
     appIcon: { type: String, required: true },
     platform: { type: String, required: true },
     packageId: { type: String, required: true },
+    installUrl: { type: String, required: true },
   });
   return mongoose.model('Version', VersionSchema);
 };

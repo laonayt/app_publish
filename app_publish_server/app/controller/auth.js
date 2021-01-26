@@ -1,73 +1,67 @@
 'use strict';
 
 const Controller = require('egg').Controller;
+const bcrypt = require('bcrypt');
+const Util = require('../utils/util');
+// const jwt = require('jsonwebtoken');
 
 class AuthController extends Controller {
+  /**
+   * 登录
+   */
   async login() {
     const { ctx, service } = this;
     const data = ctx.request.body;
     const { username, password } = data;
-    if (username && password) {
-      const result = await service.user.exist(username);
-
-      if (!result) {
-        ctx.body = {
-          code: -1,
-          msg: '用户名不存在',
-          data: null,
-        };
-      } else {
-        if (username === 'we' && password === '123456') {
-          ctx.body = {
-            code: 0,
-            msg: '登录成功',
-            data: null,
-          };
-        } else {
-          ctx.body = {
-            code: -1,
-            msg: '密码错误',
-            data: null,
-          };
-        }
-      }
-
-    } else {
-      ctx.body = {
-        code: -1,
-        msg: '参数不足',
-      };
+    // 校验参数
+    ctx.helper.validate('login', data);
+    // 校验用户名
+    const result = await service.user.exist(username);
+    if (!result) {
+      ctx.helper.err('user not exist');
+      return;
     }
+
+    // 校验密码
+    const pwdValit = bcrypt.compareSync(password, result.password);
+    if (!pwdValit) {
+      ctx.helper.err('password wrong');
+      return;
+    }
+    const token = Util.generateToken(result.username);
+    ctx.helper.success({
+      token,
+      user: result,
+    });
   }
 
+  /**
+   * 注册
+   */
   async register() {
     const { ctx, service } = this;
+    if (!ctx.app.config.allowRegister) {
+      ctx.helper.err('new register is not allowed');
+      return;
+    }
+    // 校验参数
     const data = ctx.request.body;
-    const { username, password } = data;
-    if (username && password) {
-      const result = await service.user.exist(username);
-      if (!result) {
-        const model = {};
-        model.username = username;
-        model.password = password;
+    ctx.helper.validate('register', data);
 
-        const result = await service.user.create(model);
-        ctx.body = {
-          code: 0,
-          msg: '注册成功',
-          data: result,
-        };
-      } else {
-        ctx.body = {
-          code: -1,
-          msg: '用户名已存在',
-        };
-      }
+    const { username, password, email } = data;
+    const result = await service.user.exist(username);
+    if (!result) {
+      const model = {};
+      model.username = username;
+      model.email = email;
+
+      const newPwd = await bcrypt.hash(password, 10);
+      model.password = newPwd;
+
+      const result = await service.user.create(model);
+      ctx.helper.success(result);
     } else {
-      ctx.body = {
-        code: -1,
-        msg: '参数不足',
-      };
+      ctx.helper.err('username already exist');
     }
   }
 }

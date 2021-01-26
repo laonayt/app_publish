@@ -18,11 +18,15 @@ module.exports = appInfo => {
   // add your middleware config here
   config.middleware = [];
 
-  // 关闭csrf验证
+  // jwt
+  config.jwt = {
+    secret: '123456', // 自定义 token 的加密条件字符串
+  };
   config.security = {
     csrf: {
       enable: false,
     },
+    // domainWhiteList: ['http://localhost:8080'], // 允许访问接口的白名单
   };
 
   // 配置端口号- 无效
@@ -33,6 +37,8 @@ module.exports = appInfo => {
       hostname: '0.0.0.0',
     },
   };
+  // 配置ip
+  config.baseUrl = 'http://127.0.0.1';
 
   // 配置上传
   config.multipart = {
@@ -56,10 +62,20 @@ module.exports = appInfo => {
         options: {},
       },
     },
+    validate: {
+      convert: true,
+      // validateRoot: false,
+    },
+  };
+
+  const weConfig = {
+    allowRegister: true, // 是否允许用户注册
+    salt: 'app_publish', // 密码加密盐值
   };
 
   return {
     ...config,
     ...userConfig,
+    ...weConfig,
   };
 };
